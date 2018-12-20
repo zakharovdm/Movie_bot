@@ -1,56 +1,80 @@
 import greeting
 import settings
 
-from telegram.ext import Updater, CommandHandler, RegexHandler, ConversationHandler, MessageHandler, 
-                         Filters  
+from telegram.ext import Updater, CommandHandler, RegexHandler, ConversationHandler, MessageHandler, Filters  
 
-from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
-
+from telegram import ReplyKeyboardMarkup
 
 
-CHOICE, SEARCH_ACTOR, SEARCH_MOVIE = range (3)
+
+CHOOSING, SEARCH_ACTOR, SEARCH_MOVIE = range (3)
 
 
-def greet_user(bot,update):                              
+
+def back_to_menu(bot, update, user_data):
+	update.message.reply_text('пока')
+
+	return ConversationHandler.END
+
+def greet_user(bot,update, user_data):                              
 	ave_text = 'Привет {}! {} '.format(update.message.chat.first_name, greeting.greet_text) 
 	menu_keyboard = ReplyKeyboardMarkup([['Поиск фильма', 'Поиск актера']])
 	update.message.reply_text(ave_text, reply_markup = menu_keyboard)
 
-def get_actor_by_name(bot, update):                                 
-	text = 'test_actor'
-	update.message.reply_text(text)
+	return CHOOSING
 
-def get_get_movie_by_name(bot, update):
-	text = 'test_film'
-	update.message.reply_text(text)
+def get_actor_by_name(bot, update, user_data):                                 
+	question = 'Какого актера найти?'
+	update.message.reply_text(question)
 
+	return SEARCH_ACTOR
+	
+def get_movie_by_name(bot, update, user_data):
+	question = 'Какой фильм найти?'
+	update.message.reply_text(question)
+
+	return SEARCH_MOVIE
+
+def search_actor(bot, update, user_data):
+	text = update.message.text 
+	user_data['actor'] = text
+	update.message.reply_text('Ищем {}, потом здесь будет результат поиска'.format(text.title())) 
+
+	return CHOOSING
+
+def search_movie(bot, update, user_data):
+	text = update.message.text
+	user_data['movie'] = text
+	update.message.reply_text('Ищем {}, потом здесь будет результат поиска'.format(text.title()))
+
+	return CHOOSING
+
+	
 
 def main():
 	moviebot = Updater(settings.API_KEY, request_kwargs=settings.PROXY)
 
 	conv_handler = ConversationHandler(
-		    entry_points = [CommandHandler('start', greet_user)], 
+		    entry_points = [CommandHandler('start', greet_user,pass_user_data = True),
+		    RegexHandler('^(Поиск актера)$', get_actor_by_name, pass_user_data = True),
+		    RegexHandler('^(Поиск фильма)$', get_movie_by_name, pass_user_data = True)], 
 
 		    states ={
-		    	CHOICE: [RegexHandler('^(Поиск актера)$', get_actor_by_name),
-		    			RegexHandler('^(Поиск фильма)$', get_movie_by_name)],
+		    	CHOOSING: [RegexHandler('^(Поиск актера)$', get_actor_by_name, pass_user_data = True), 
+		    			RegexHandler('^(Поиск фильма)$', get_movie_by_name, pass_user_data = True)],
 
-		    	SEARCH_ACTOR: [MessageHandler(Filters.text, get_actor_by_name)],
+		    	SEARCH_ACTOR: [MessageHandler(Filters.text, search_actor, pass_user_data = True)],
 
-		    	SEARCH_MOVIE: [MessageHandler(Filters.text, get_movie_by_name)], 
+		    	SEARCH_MOVIE: [MessageHandler(Filters.text, search_movie, pass_user_data = True)], 
 
 		    	},
 
-		    fallbacks = [CommandHandler ('back_to_menu', back_to_menu)]	 
-			
-				)
+		    fallbacks = [CommandHandler ('back_to_menu', back_to_menu)]	
+
+		    )
 
 	dp = moviebot.dispatcher
-	dp.add_handler(CommandHandler('start', greet_user))
-	dp.add_handler(CommandHandler('get_actor', get_actor_by_name))
-	dp.add_handler(CommandHandler('get_movie', get_movie_by_name))
 	dp.add_handler(conv_handler)
-
 	
 
 	moviebot.start_polling()
