@@ -9,16 +9,16 @@ from telegram import ReplyKeyboardMarkup
 
 CHOOSING, SEARCH_ACTOR, SEARCH_MOVIE = range (3)
 
-
-
 def back_to_menu(bot, update, user_data):
 	update.message.reply_text('пока')
 
 	return ConversationHandler.END
 
+
 def greet_user(bot,update, user_data):                              
 	ave_text = 'Привет {}! {} '.format(update.message.chat.first_name, greeting.greet_text) 
-	menu_keyboard = ReplyKeyboardMarkup([['Поиск фильма', 'Поиск актера']])
+	menu_keyboard = ReplyKeyboardMarkup([['Поиск фильма', 'Поиск актера'],
+											         ['Отмена']])
 	update.message.reply_text(ave_text, reply_markup = menu_keyboard)
 
 	return CHOOSING
@@ -26,20 +26,22 @@ def greet_user(bot,update, user_data):
 def get_actor_by_name(bot, update, user_data):                                 
 	question = 'Какого актера найти?'
 	update.message.reply_text(question)
-
 	return SEARCH_ACTOR
+
+
 	
 def get_movie_by_name(bot, update, user_data):
 	question = 'Какой фильм найти?'
 	update.message.reply_text(question)
-
 	return SEARCH_MOVIE
-
+ 
+	
 def search_actor(bot, update, user_data):
 	text = update.message.text 
 	user_data['actor'] = text
 	update.message.reply_text('Ищем {}, потом здесь будет результат поиска'.format(text.title())) 
 
+	
 	return CHOOSING
 
 def search_movie(bot, update, user_data):
@@ -47,6 +49,7 @@ def search_movie(bot, update, user_data):
 	user_data['movie'] = text
 	update.message.reply_text('Ищем {}, потом здесь будет результат поиска'.format(text.title()))
 
+	
 	return CHOOSING
 
 	
@@ -57,19 +60,21 @@ def main():
 	conv_handler = ConversationHandler(
 		    entry_points = [CommandHandler('start', greet_user,pass_user_data = True),
 		    RegexHandler('^(Поиск актера)$', get_actor_by_name, pass_user_data = True),
-		    RegexHandler('^(Поиск фильма)$', get_movie_by_name, pass_user_data = True)], 
+		    RegexHandler('^(Поиск фильма)$', get_movie_by_name, pass_user_data = True)],
 
-		    states ={
+		    states = {
 		    	CHOOSING: [RegexHandler('^(Поиск актера)$', get_actor_by_name, pass_user_data = True), 
 		    			RegexHandler('^(Поиск фильма)$', get_movie_by_name, pass_user_data = True)],
 
-		    	SEARCH_ACTOR: [MessageHandler(Filters.text, search_actor, pass_user_data = True)],
+		    	SEARCH_ACTOR: [RegexHandler('^(Отмена)$', back_to_menu, pass_user_data = True),
+		    					MessageHandler(Filters.text, search_actor, pass_user_data = True)],
 
-		    	SEARCH_MOVIE: [MessageHandler(Filters.text, search_movie, pass_user_data = True)], 
+		    	SEARCH_MOVIE: [RegexHandler('^(Отмена)$', back_to_menu, pass_user_data = True),
+		    					MessageHandler(Filters.text, search_movie, pass_user_data = True)], 
 
 		    	},
 
-		    fallbacks = [CommandHandler ('back_to_menu', back_to_menu)]	
+		    fallbacks = [RegexHandler('^(Отмена)$', back_to_menu, pass_user_data = True)]	
 
 		    )
 
