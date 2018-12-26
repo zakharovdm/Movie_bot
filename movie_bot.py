@@ -5,6 +5,8 @@ from telegram.ext import Updater, CommandHandler, RegexHandler, ConversationHand
 
 from telegram import ReplyKeyboardMarkup
 
+import imdb
+
 
 
 CHOOSING, SEARCH_ACTOR, SEARCH_MOVIE = range (3)
@@ -37,9 +39,11 @@ def get_movie_by_name(bot, update, user_data):
  
 	
 def search_actor(bot, update, user_data):
-	text = update.message.text 
-	user_data['actor'] = text
-	update.message.reply_text('Ищем {}, потом здесь будет результат поиска'.format(text.title())) 
+	ia = imdb.IMDb()
+	user_query = update.message.text 
+	user_data['actor'] = user_query
+	actor = ia.search_person(user_query) 
+	update.message.reply_text(actor[0]) 
 
 	
 	return CHOOSING
