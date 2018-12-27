@@ -18,6 +18,10 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
 CHOOSING, SEARCH_ACTOR, SEARCH_MOVIE = range (3)
 
 def back_to_menu(bot, update, user_data):
+	logging.info("User: %s, Chat id: %s, Message: %s", update.message.chat.username,
+                 update.message.chat.id, update.message.text)
+	print(("User: %s, Chat id: %s, Message: %s", update.message.chat.username,
+                 update.message.chat.id, update.message.text))
 	update.message.reply_text('пока')
 
 	return ConversationHandler.END
@@ -37,6 +41,10 @@ def greet_user(bot,update, user_data):
 
 def get_actor_by_name(bot, update, user_data):                                 
 	question = 'Какого актера найти?'
+	logging.info("User: %s, Chat id: %s, Message: %s", update.message.chat.username,
+                 update.message.chat.id, update.message.text)
+	print(("User: %s, Chat id: %s, Message: %s", update.message.chat.username,
+                 update.message.chat.id, update.message.text))
 	update.message.reply_text(question)
 	return SEARCH_ACTOR
 
@@ -44,6 +52,10 @@ def get_actor_by_name(bot, update, user_data):
 	
 def get_movie_by_name(bot, update, user_data):
 	question = 'Какой фильм найти?'
+	logging.info("User: %s, Chat id: %s, Message: %s", update.message.chat.username,
+                 update.message.chat.id, update.message.text)
+	print(("User: %s, Chat id: %s, Message: %s", update.message.chat.username,
+                 update.message.chat.id, update.message.text))
 	update.message.reply_text(question)
 	return SEARCH_MOVIE
  
@@ -55,6 +67,10 @@ def search_actor(bot, update, user_data):
 	actor = ia.search_person(user_query)
 	id_actor = actor[0].personID
 	info_actor = ia.get_person(id_actor)
+	logging.info("User: %s, Chat id: %s, Message: %s", update.message.chat.username,
+                 update.message.chat.id, update.message.text)
+	print(("User: %s, Chat id: %s, Message: %s", update.message.chat.username,
+                 update.message.chat.id, update.message.text))
 	update.message.reply_text(info_actor['bio']) 
 
 	
@@ -67,6 +83,10 @@ def search_movie(bot, update, user_data):
 	movie = ia.search_movie(user_query)
 	id_movie = movie[0].movieID
 	info_movie = ia.get_movie(id_movie)
+	logging.info("User: %s, Chat id: %s, Message: %s", update.message.chat.username,
+                 update.message.chat.id, update.message.text)
+	print(("User: %s, Chat id: %s, Message: %s", update.message.chat.username,
+                 update.message.chat.id, update.message.text))
 	update.message.reply_text(info_movie['plot'])
 
 	
