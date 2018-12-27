@@ -1,11 +1,17 @@
 import greeting
+import imdb
 import settings
+import logging
 
 from telegram.ext import Updater, CommandHandler, RegexHandler, ConversationHandler, MessageHandler, Filters  
 
 from telegram import ReplyKeyboardMarkup
 
-import imdb
+
+logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
+                    level=logging.INFO,
+                    filename='movie_bot.log'
+                    )
 
 
 
@@ -21,6 +27,10 @@ def greet_user(bot,update, user_data):
 	ave_text = 'Привет {}! {} '.format(update.message.chat.first_name, greeting.greet_text) 
 	menu_keyboard = ReplyKeyboardMarkup([['Поиск фильма', 'Поиск актера'],
 											         ['Отмена']])
+	logging.info("User: %s, Chat id: %s, Message: %s", update.message.chat.username,
+                 update.message.chat.id, update.message.text)
+	print(("User: %s, Chat id: %s, Message: %s", update.message.chat.username,
+                 update.message.chat.id, update.message.text))
 	update.message.reply_text(ave_text, reply_markup = menu_keyboard)
 
 	return CHOOSING
@@ -66,6 +76,9 @@ def search_movie(bot, update, user_data):
 
 def main():
 	moviebot = Updater(settings.API_KEY, request_kwargs=settings.PROXY)
+
+	logging.info('Бот запускается')
+	print('Бот запускается') 
 
 	conv_handler = ConversationHandler(
 		    entry_points = [CommandHandler('start', greet_user,pass_user_data = True),
