@@ -42,16 +42,22 @@ def search_actor(bot, update, user_data):
 	ia = imdb.IMDb()
 	user_query = update.message.text 
 	user_data['actor'] = user_query
-	actor = ia.search_person(user_query) 
-	update.message.reply_text(actor[0]) 
+	actor = ia.search_person(user_query)
+	id_actor = actor[0].personID
+	info_actor = ia.get_person(id_actor)
+	update.message.reply_text(info_actor['bio']) 
 
 	
 	return CHOOSING
 
 def search_movie(bot, update, user_data):
-	text = update.message.text
-	user_data['movie'] = text
-	update.message.reply_text('Ищем {}, потом здесь будет результат поиска'.format(text.title()))
+	ia = imdb.IMDb()
+	user_query = update.message.text
+	user_data['movie'] = user_query
+	movie = ia.search_movie(user_query)
+	id_movie = movie[0].movieID
+	info_movie = ia.get_movie(id_movie)
+	update.message.reply_text(info_movie['plot'])
 
 	
 	return CHOOSING
