@@ -19,9 +19,9 @@ CHOOSING, SEARCH_ACTOR, SEARCH_MOVIE = range(3)
 
 
 def back_to_menu(bot, update, user_data):
-    logging.info_movie("User: %s, Chat id: %s, Message: %s",
-                       update.message.chat.username,
-                       update.message.chat.id, update.message.text)
+    logging.info("User: %s, Chat id: %s, Message: %s",
+                 update.message.chat.username,
+                 update.message.chat.id, update.message.text)
     print(("User: %s, Chat id: %s, Message: %s", update.message.chat.username,
            update.message.chat.id, update.message.text))
     update.message.reply_text('пока')
@@ -32,11 +32,13 @@ def back_to_menu(bot, update, user_data):
 def greet_user(bot, update, user_data):
     ave_text = 'Привет {}! {} '.format(update.message.chat.first_name,
                                        greeting.greet_text)
-    menu_keyboard = ReplyKeyboardMarkup([['Поиск фильма', 'Поиск актера']
-                                         ['Отмена']])
-    logging.info_movie("User: %s, Chat id: %s, Message: %s",
-                       update.message.chat.username,
-                       update.message.chat.id, update.message.text)
+    menu_keyboard = ReplyKeyboardMarkup([['Поиск фильма', 'Поиск актера'],
+                                         ['Отмена']
+                                         ]
+                                        )
+    logging.info("User: %s, Chat id: %s, Message: %s",
+                 update.message.chat.username,
+                 update.message.chat.id, update.message.text)
     print(("User: %s, Chat id: %s, Message: %s", update.message.chat.username,
            update.message.chat.id, update.message.text))
     update.message.reply_text(ave_text, reply_markup=menu_keyboard)
@@ -46,9 +48,9 @@ def greet_user(bot, update, user_data):
 
 def get_actor_by_name(bot, update, user_data):
     question = 'Какого актера найти?'
-    logging.info_movie("User: %s, Chat id: %s, Message: %s",
-                       update.message.chat.username,
-                       update.message.chat.id, update.message.text)
+    logging.info("User: %s, Chat id: %s, Message: %s",
+                 update.message.chat.username,
+                 update.message.chat.id, update.message.text)
     print(("User: %s, Chat id: %s, Message: %s", update.message.chat.username,
            update.message.chat.id, update.message.text))
     update.message.reply_text(question)
@@ -57,9 +59,9 @@ def get_actor_by_name(bot, update, user_data):
 
 def get_movie_by_name(bot, update, user_data):
     question = 'Какой фильм найти?'
-    logging.info_movie("User: %s, Chat id: %s, Message: %s",
-                       update.message.chat.username,
-                       update.message.chat.id, update.message.text)
+    logging.info("User: %s, Chat id: %s, Message: %s",
+                 update.message.chat.username,
+                 update.message.chat.id, update.message.text)
     print(("User: %s, Chat id: %s, Message: %s", update.message.chat.username,
            update.message.chat.id, update.message.text))
     update.message.reply_text(question)
