@@ -19,6 +19,14 @@ CHOOSING, SEARCH_ACTOR, SEARCH_MOVIE = range(3)
 
 
 def back_to_menu(bot, update, user_data):
+    """Возвращает в главное меню.
+
+    Args:
+        bot: Объект, который передается обработчикам.
+        update: Сообщение которое пришло от Telegramm.
+        user_data: Хранит данные от пользователя.
+
+    """
     logging.info("User: %s, Chat id: %s, Message: %s",
                  update.message.chat.username,
                  update.message.chat.id, update.message.text)
@@ -30,6 +38,17 @@ def back_to_menu(bot, update, user_data):
 
 
 def greet_user(bot, update, user_data):
+    """Приветсвует пользователя.
+
+    При запуске бота, запускается клавиатура и
+    дает информацию о возможностях бота.
+
+    Args:
+        bot: Объект, который передается обработчикам.
+        update: Сообщение которое пришло от Telegramm.
+        user_data: Хранит данные от пользователя.
+
+    """
     ave_text = 'Привет {}! {} '.format(update.message.chat.first_name,
                                        greeting.greet_text)
     menu_keyboard = ReplyKeyboardMarkup([['Поиск фильма', 'Поиск актера'],
@@ -47,6 +66,18 @@ def greet_user(bot, update, user_data):
 
 
 def get_actor_by_name(bot, update, user_data):
+    """Задает вопрос, "Какого актера найти".
+
+    После нажатия кнопки "Поиск актера",
+    вступает в диалог с пользователем,
+    получает имя и фамилию актера.
+
+    Args:
+        bot: Объект, который передается обработчикам.
+        update: Сообщение которое пришло от Telegramm.
+        user_data: Хранит данные от пользователя.
+
+    """
     question = 'Какого актера найти?'
     logging.info("User: %s, Chat id: %s, Message: %s",
                  update.message.chat.username,
@@ -58,6 +89,18 @@ def get_actor_by_name(bot, update, user_data):
 
 
 def get_movie_by_name(bot, update, user_data):
+    """Задает вопрос, "Какой фильм найти".
+
+    После нажатия кнопки "Поиск фильма",
+    вступает в диалог с пользователем,
+    получает название фильма.
+
+    Args:
+        bot: Объект, который передается обработчикам.
+        update: Сообщение которое пришло от Telegramm.
+        user_data: Хранит данные от пользователя.
+
+    """
     question = 'Какой фильм найти?'
     logging.info("User: %s, Chat id: %s, Message: %s",
                  update.message.chat.username,
@@ -69,6 +112,15 @@ def get_movie_by_name(bot, update, user_data):
 
 
 def search_actor(bot, update, user_data):
+    """Обращается к базе данных IMDb
+    для поиска и выдачи информации о актере.
+
+    Args:
+        bot: Объект, который передается обработчикам.
+        update: Сообщение которое пришло от Telegramm.
+        user_data: Хранит данные от пользователя.
+
+    """
     ia = imdb.IMDb()
     user_query = update.message.text
     user_data['actor'] = user_query
@@ -85,6 +137,15 @@ def search_actor(bot, update, user_data):
 
 
 def search_movie(bot, update, user_data):
+    """Обращается к базе данных IMDb
+    для поиска и выдачи информации о фильме.
+
+    Args:
+        bot: Объект, который передается обработчикам.
+        update: Сообщение которое пришло от Telegramm.
+        user_data: Хранит данные от пользователя.
+
+    """
     ia = imdb.IMDb()
     user_query = update.message.text
     user_data['movie'] = user_query
@@ -101,6 +162,11 @@ def search_movie(bot, update, user_data):
 
 
 def main():
+    """
+
+    Запускает бот и работает с диалогом.
+
+    """
     moviebot = Updater(settings.API_KEY, request_kwargs=settings.PROXY)
 
     logging.info('Бот запускается')

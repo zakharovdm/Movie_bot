@@ -214,3 +214,11 @@ IndexError: list index out of range
 2019-01-05 21:04:31,995 - INFO - User: dm_zakharov, Chat id: 435920381, Message: matrix
 2019-01-05 21:04:32,570 - INFO - User: dm_zakharov, Chat id: 435920381, Message: Отмена
 2019-01-05 21:04:44,791 - INFO - Received signal 2 (SIGINT), stopping...
+2019-01-06 00:10:28,047 - INFO - Бот запускается
+2019-01-06 00:10:33,451 - INFO - User: dm_zakharov, Chat id: 435920381, Message: Поиск фильма
+2019-01-06 00:10:40,638 - INFO - using lxml
+2019-01-06 00:10:41,817 - INFO - using lxml html builder
+2019-01-06 00:10:44,847 - INFO - using lxml html builder
+2019-01-06 00:10:48,527 - INFO - using lxml html builder
+2019-01-06 00:10:48,567 - INFO - User: dm_zakharov, Chat id: 435920381, Message: tor
+2019-01-06 00:10:59,632 - INFO - Received signal 2 (SIGINT), stopping...
