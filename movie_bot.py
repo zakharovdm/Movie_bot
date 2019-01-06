@@ -55,11 +55,14 @@ def greet_user(bot, update, user_data):
                                          ['Отмена']
                                          ]
                                         )
-    logging.info("User: %s, Chat id: %s, Message: %s",
-                 update.message.chat.username,
-                 update.message.chat.id, update.message.text)
-    print(("User: %s, Chat id: %s, Message: %s", update.message.chat.username,
-           update.message.chat.id, update.message.text))
+    logging.info(f"""
+                    User: {update.message.chat.username},
+                    Chat id: {update.message.chat.id},
+                    Message: {update.message.text}""")
+    print(f"""
+              User: {update.message.chat.username},
+              Chat id: {update.message.chat.id},
+              Message: {update.message.text}""")
     update.message.reply_text(ave_text, reply_markup=menu_keyboard)
 
     return CHOOSING
@@ -79,11 +82,14 @@ def get_actor_by_name(bot, update, user_data):
 
     """
     question = 'Какого актера найти?'
-    logging.info("User: %s, Chat id: %s, Message: %s",
-                 update.message.chat.username,
-                 update.message.chat.id, update.message.text)
-    print(("User: %s, Chat id: %s, Message: %s", update.message.chat.username,
-           update.message.chat.id, update.message.text))
+    logging.info(f"""
+                User: {update.message.chat.username},
+                Chat id: {update.message.chat.id},
+                Message: {update.message.text}""")
+    print(f"""
+    User: {update.message.chat.username},
+    Chat id: {update.message.chat.id},
+    Message: {update.message.text}""")
     update.message.reply_text(question)
     return SEARCH_ACTOR
 
