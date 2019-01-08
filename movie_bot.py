@@ -7,7 +7,7 @@ from telegram.ext import (Updater, CommandHandler, RegexHandler,
                           ConversationHandler, MessageHandler, Filters)
 
 from telegram import ReplyKeyboardMarkup
-
+from telegram.error import BadRequest
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
                     level=logging.INFO,
@@ -40,6 +40,13 @@ def back_to_menu(bot, update, user_data):
     update.message.reply_text('пока')
 
     return ConversationHandler.END
+
+
+def error_callback(bot, update, error):
+    try:
+        raise error
+    except BadRequest:
+        update.message.reply_text('the end')
 
 
 def greet_user(bot, update, user_data):
@@ -234,6 +241,7 @@ def main():
 
     dp = moviebot.dispatcher
     dp.add_handler(conv_handler)
+    dp.add_error_handler(error_callback)
     moviebot.start_polling()
     moviebot.idle()
 
