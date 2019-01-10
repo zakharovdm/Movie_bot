@@ -7,7 +7,7 @@ from telegram.ext import (Updater, CommandHandler, RegexHandler,
                           ConversationHandler, MessageHandler, Filters)
 
 from telegram import ReplyKeyboardMarkup
-from telegram.error import BadRequest
+
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
                     level=logging.INFO,
@@ -40,13 +40,6 @@ def back_to_menu(bot, update, user_data):
     update.message.reply_text('пока')
 
     return ConversationHandler.END
-
-
-def error_callback(bot, update, error):
-    try:
-        raise error
-    except BadRequest:
-        update.message.reply_text('the end')
 
 
 def greet_user(bot, update, user_data):
@@ -148,23 +141,26 @@ def search_actor(bot, update, user_data):
         user_data: Хранит данные от пользователя.
 
     """
-    ia = imdb.IMDb()
-    user_query = update.message.text
-    user_data['actor'] = user_query
-    actor = ia.search_person(user_query)
-    id_actor = actor[0].personID
-    info_actor = ia.get_person(id_actor)
-    logging.info(f"""
+    try:
+        ia = imdb.IMDb()
+        user_query = update.message.text
+        user_data['actor'] = user_query
+        actor = ia.search_person(user_query)
+        id_actor = actor[0].personID
+        info_actor = ia.get_person(id_actor)
+        logging.info(f"""
                     User: {update.message.chat.username},
                     Chat id: {update.message.chat.id},
                     Message: {update.message.text}
-                """)
-    print(f"""
+                    """)
+        print(f"""
               User: {update.message.chat.username},
               Chat id: {update.message.chat.id},
               Message: {update.message.text}
             """)
-    update.message.reply_text(info_actor['bio'])
+        update.message.reply_text(info_actor['bio'])
+    except IndexError:
+        update.message.reply_text('Ничего не найдено, проверьте запрос.')
     return CHOOSING
 
 
@@ -178,23 +174,37 @@ def search_movie(bot, update, user_data):
         user_data: Хранит данные от пользователя.
 
     """
-    ia = imdb.IMDb()
-    user_query = update.message.text
-    user_data['movie'] = user_query
-    movie = ia.search_movie(user_query)
-    id_movie = movie[0].movieID
-    info_movie = ia.get_movie(id_movie)
-    logging.info(f"""
+    try:
+        ia = imdb.IMDb()
+        user_query = update.message.text
+        user_data['movie'] = user_query
+        movie = ia.search_movie(user_query)
+        id_movie = movie[0].movieID
+        info_movie = ia.get_movie(id_movie)
+        message_length = 0
+        for list in info_movie['plot']:
+            message_length += len(list)
+        if message_length > 4096:
+            part_info_movie = info_movie['plot']
+            part_one = part_info_movie[:len(part_info_movie) // 2]
+            part_two = part_info_movie[len(part_info_movie) // 2:]
+            update.message.reply_text(part_one)
+            update.message.reply_text(part_two)
+        else:
+            update.message.reply_text(info_movie['plot'])
+
+        logging.info(f"""
                     User: {update.message.chat.username},
                     Chat id: {update.message.chat.id},
                     Message: {update.message.text}
                 """)
-    print(f"""
-              User: {update.message.chat.username},
-              Chat id: {update.message.chat.id},
-              Message: {update.message.text}
+        print(f"""
+                User: {update.message.chat.username},
+                Chat id: {update.message.chat.id},
+                Message: {update.message.text}
             """)
-    update.message.reply_text(info_movie['plot'])
+    except IndexError:
+        update.message.reply_text('Ничего не найдено, проверьте запрос.')
     return CHOOSING
 
 
@@ -241,7 +251,6 @@ def main():
 
     dp = moviebot.dispatcher
     dp.add_handler(conv_handler)
-    dp.add_error_handler(error_callback)
     moviebot.start_polling()
     moviebot.idle()
 
