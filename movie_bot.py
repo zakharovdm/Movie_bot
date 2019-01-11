@@ -2,6 +2,7 @@ import greeting
 import imdb
 import settings
 import logging
+import math
 
 from telegram.ext import (Updater, CommandHandler, RegexHandler,
                           ConversationHandler, MessageHandler, Filters)
@@ -185,11 +186,11 @@ def search_movie(bot, update, user_data):
         for list in info_movie['plot']:
             message_length += len(list)
         if message_length > 4096:
-            part_info_movie = info_movie['plot']
-            part_one = part_info_movie[:len(part_info_movie) // 2]
-            part_two = part_info_movie[len(part_info_movie) // 2:]
-            update.message.reply_text(part_one)
-            update.message.reply_text(part_two)
+            parts = info_movie['plot']
+            number_of_parts = message_length // 4096
+            chunks = parts[:len(parts) // (math.ceil(number_of_parts)) + 1]
+            for chunk in chunks:
+                update.message.reply_text(chunk)
         else:
             update.message.reply_text(info_movie['plot'])
 
