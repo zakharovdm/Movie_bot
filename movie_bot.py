@@ -57,10 +57,6 @@ def greet_user(bot, update, user_data):
     """
     ave_text = 'Привет {}! {} '.format(update.message.chat.first_name,
                                        greeting.greet_text)
-    menu_keyboard = ReplyKeyboardMarkup([['Поиск фильма', 'Поиск актера'],
-                                         ['Отмена']
-                                         ]
-                                        )
     logging.info(f"""
                     User: {update.message.chat.username},
                     Chat id: {update.message.chat.id},
@@ -71,7 +67,7 @@ def greet_user(bot, update, user_data):
               Chat id: {update.message.chat.id},
               Message: {update.message.text}
             """)
-    update.message.reply_text(ave_text, reply_markup=menu_keyboard)
+    update.message.reply_text(ave_text, reply_markup=menu_keyboard())
 
     return CHOOSING
 
@@ -130,6 +126,14 @@ def get_movie_by_name(bot, update, user_data):
             """)
     update.message.reply_text(question)
     return SEARCH_MOVIE
+
+
+def menu_keyboard():
+    film_keyboard = ReplyKeyboardMarkup([['Поиск фильма', 'Поиск актера'],
+                                         ['Отмена']
+                                         ], resize_keyboard=True
+                                        )
+    return film_keyboard
 
 
 def search_actor(bot, update, user_data):
@@ -209,6 +213,22 @@ def search_movie(bot, update, user_data):
     return CHOOSING
 
 
+def talk_to_me(bot, update, user_data):
+        response_user = f""" Привет {update.message.chat.first_name},
+                            {greeting.greet_text}"""
+        logging.info(f"""
+                    User: {update.message.chat.username},
+                    Chat id: {update.message.chat.id},
+                    Message: {update.message.text}
+                """)
+        print(f"""
+                User: {update.message.chat.username},
+                Chat id: {update.message.chat.id},
+                Message: {update.message.text}
+            """)
+        update.message.reply_text(response_user, reply_markup=menu_keyboard())
+
+
 def main():
     """
 
@@ -252,6 +272,8 @@ def main():
 
     dp = moviebot.dispatcher
     dp.add_handler(conv_handler)
+    dp.add_handler(MessageHandler(Filters.text, talk_to_me,
+                                  pass_user_data=True))
     moviebot.start_polling()
     moviebot.idle()
 
