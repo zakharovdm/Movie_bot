@@ -186,18 +186,9 @@ def search_movie(bot, update, user_data):
         movie = ia.search_movie(user_query)
         id_movie = movie[0].movieID
         info_movie = ia.get_movie(id_movie)
-        message_length = 0
-        for list in info_movie['plot']:
-            message_length += len(list)
-        if message_length > 4096:
-            parts = info_movie['plot']
-            number_of_parts = message_length // 4096
-            chunks = parts[:len(parts) // (math.ceil(number_of_parts)) + 1]
-            for chunk in chunks:
-                update.message.reply_text(chunk)
-        else:
-            update.message.reply_text(info_movie['plot'])
-
+        id_director = info_movie['director']
+        print(id_director)
+        update.message.reply_text(info_movie['plot'][0])
         logging.info(f"""
                     User: {update.message.chat.username},
                     Chat id: {update.message.chat.id},
