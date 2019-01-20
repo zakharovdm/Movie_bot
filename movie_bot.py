@@ -186,9 +186,11 @@ def search_movie(bot, update, user_data):
         movie = ia.search_movie(user_query)
         id_movie = movie[0].movieID
         info_movie = ia.get_movie(id_movie)
-        id_director = info_movie['director']
-        print(id_director)
+        director_info = info_movie['director']
+        id_director = director_info[0].personID
+        name_director = ia.get_person(id_director)
         update.message.reply_text(info_movie['plot'][0])
+        update.message.reply_text(f"Режиссер: {name_director['name']}")
         logging.info(f"""
                     User: {update.message.chat.username},
                     Chat id: {update.message.chat.id},
