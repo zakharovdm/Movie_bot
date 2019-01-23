@@ -2,7 +2,6 @@ import greeting
 import imdb
 import settings
 import logging
-import math
 
 from telegram.ext import (Updater, CommandHandler, RegexHandler,
                           ConversationHandler, MessageHandler, Filters)
@@ -189,8 +188,13 @@ def search_movie(bot, update, user_data):
         director_info = info_movie['director']
         id_director = director_info[0].personID
         name_director = ia.get_person(id_director)
+        stars = info_movie['cast'][0:3]
+        actors = " "
+        for stars_name in stars:
+            actors += stars_name['name']
         update.message.reply_text(info_movie['plot'][0])
         update.message.reply_text(f"Режиссер: {name_director['name']}")
+        update.message.reply_text(f"В главных ролях: {actors}") #разбить выдачу 
         logging.info(f"""
                     User: {update.message.chat.username},
                     Chat id: {update.message.chat.id},
