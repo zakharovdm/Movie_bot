@@ -189,12 +189,15 @@ def search_movie(bot, update, user_data):
         id_director = director_info[0].personID
         name_director = ia.get_person(id_director)
         stars = info_movie['cast'][0:3]
-        actors = " "
+        name_actors = []
         for stars_name in stars:
-            actors += stars_name['name']
+            name_actors.append(stars_name['name'])
+        actors = ', '.join(name_actors)
+        release = info_movie['original air date']
         update.message.reply_text(info_movie['plot'][0])
         update.message.reply_text(f"Режиссер: {name_director['name']}")
-        update.message.reply_text(f"В главных ролях: {actors}") #разбить выдачу 
+        update.message.reply_text(f"В главных ролях: {actors}")
+        update.message.reply_text(f"Дата выхода: {release}")
         logging.info(f"""
                     User: {update.message.chat.username},
                     Chat id: {update.message.chat.id},
