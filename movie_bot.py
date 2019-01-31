@@ -1,7 +1,9 @@
 import greeting
 import imdb
-import settings
 import logging
+import requests
+import settings
+
 
 from telegram.ext import (Updater, CommandHandler, RegexHandler,
                           ConversationHandler, MessageHandler, Filters)
@@ -127,6 +129,21 @@ def get_movie_by_name(bot, update, user_data):
     return SEARCH_MOVIE
 
 
+def get_id_movie(bot, update, user_data):
+    ia = imdb.IMDb()
+    user_query = update.message.text
+    user_data['movie'] = user_query
+    movie = ia.search_movie(user_query)
+    id_movie = movie[0].movieID
+    ia.get_movie(id_movie)
+    reply_description(bot, update, user_data)
+
+
+def reply_description(bot, update, user_data):
+    info_movie = get_id_movie(bot, update, user_data)
+    update.message.reply_text(info_movie['plot'][0])
+
+
 def menu_keyboard():
     film_keyboard = ReplyKeyboardMarkup([['Поиск фильма', 'Поиск актера'],
                                          ['Отмена']
@@ -168,6 +185,20 @@ def search_actor(bot, update, user_data):
     return CHOOSING
 
 
+def get_id_movie_TMDB(bot, update, user_data):
+    movie_url = "https://api.themoviedb.org/3/search/movie"
+    params = {
+        "key": "bb46ace44fb728f5f7575bf3b4531ad3",
+        "language": "en-US",
+        "query": user_data,
+        "page": 1,
+        "include_adult": "false"
+
+
+
+    }
+    id_movie = requests.get(movie_url)
+
 def search_movie(bot, update, user_data):
     """Обращается к базе данных IMDb
     для поиска и выдачи информации о фильме.
@@ -179,12 +210,7 @@ def search_movie(bot, update, user_data):
 
     """
     try:
-        ia = imdb.IMDb()
-        user_query = update.message.text
-        user_data['movie'] = user_query
-        movie = ia.search_movie(user_query)
-        id_movie = movie[0].movieID
-        info_movie = ia.get_movie(id_movie)
+        
         director_info = info_movie['director']
         id_director = director_info[0].personID
         name_director = ia.get_person(id_director)
@@ -194,7 +220,7 @@ def search_movie(bot, update, user_data):
             name_actors.append(stars_name['name'])
         actors = ', '.join(name_actors)
         release = info_movie['original air date']
-        update.message.reply_text(info_movie['plot'][0])
+        
         update.message.reply_text(f"Режиссер: {name_director['name']}")
         update.message.reply_text(f"В главных ролях: {actors}")
         update.message.reply_text(f"Дата выхода: {release}")
@@ -261,7 +287,7 @@ def main():
 
             SEARCH_MOVIE: [RegexHandler('^(Отмена)$', back_to_menu,
                                         pass_user_data=True),
-                           MessageHandler(Filters.text, search_movie,
+                           MessageHandler(Filters.text, get_id_movie,
                                           pass_user_data=True)],
         },
 
