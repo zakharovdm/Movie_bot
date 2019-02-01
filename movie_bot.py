@@ -130,18 +130,101 @@ def get_movie_by_name(bot, update, user_data):
 
 
 def get_id_movie(bot, update, user_data):
-    ia = imdb.IMDb()
-    user_query = update.message.text
-    user_data['movie'] = user_query
-    movie = ia.search_movie(user_query)
-    id_movie = movie[0].movieID
-    ia.get_movie(id_movie)
-    reply_description(bot, update, user_data)
+    """Обращается к базе данных IMDb
+    для получения id фильма.
+
+    Args:
+        bot: Объект, который передается обработчикам.
+        update: Сообщение которое пришло от Telegramm.
+        user_data: Хранит данные от пользователя.
+
+    """
+    try:
+        ia = imdb.IMDb()
+        user_query = update.message.text
+        user_data['movie'] = user_query
+        movie = ia.search_movie(user_query)
+        id_movie = movie[0].movieID
+        user_data = ia.get_movie(id_movie)
+        logging.info(f"""
+                    User: {update.message.chat.username},
+                    Chat id: {update.message.chat.id},
+                    Message: {update.message.text}
+                """)
+        print(f"""
+                User: {update.message.chat.username},
+                Chat id: {update.message.chat.id},
+                Message: {update.message.text}
+            """)
+        reply_description(bot, update, user_data)
+    except IndexError:
+        update.message.reply_text('Ничего не найдено, проверьте запрос.')
+    return CHOOSING
 
 
 def reply_description(bot, update, user_data):
-    info_movie = get_id_movie(bot, update, user_data)
+    """Выдает краткое описание фильма.
+
+    Args:
+        bot: Объект, который передается обработчикам.
+        update: Сообщение которое пришло от Telegramm.
+        user_data: Хранит данные от пользователя.
+
+    """
+    info_movie = user_data
     update.message.reply_text(info_movie['plot'][0])
+    reply_directors(bot, update, user_data)
+
+
+def reply_directors(bot, update, user_data):
+    """Выдача режиссера фильма.
+
+    Args:
+        bot: Объект, который передается обработчикам.
+        update: Сообщение которое пришло от Telegramm.
+        user_data: Хранит данные от пользователя.
+
+    """
+    ia = imdb.IMDb()
+    info_movie = user_data
+    director_info = info_movie['director']
+    id_director = director_info[0].personID
+    name_director = ia.get_person(id_director)
+    update.message.reply_text(f"Режиссер: {name_director['name']}")
+    reply_main_roles(bot, update, user_data)
+
+
+def reply_main_roles(bot, update, user_data):
+    """Выдача актеров в главных ролях фильма.
+
+    Args:
+        bot: Объект, который передается обработчикам.
+        update: Сообщение которое пришло от Telegramm.
+        user_data: Хранит данные от пользователя.
+
+    """
+    info_movie = user_data
+    stars = info_movie['cast'][0:3]
+    name_actors = []
+    for stars_name in stars:
+        name_actors.append(stars_name['name'])
+    actors = ', '.join(name_actors)
+    update.message.reply_text(f"В главных ролях: {actors}")
+    reply_release_date(bot, update, user_data)
+
+
+def reply_release_date(bot, update, user_data):
+    """Выдача даты выпуска.
+
+    Args:
+        bot: Объект, который передается обработчикам.
+        update: Сообщение которое пришло от Telegramm.
+        user_data: Хранит данные от пользователя.
+
+    """
+    info_movie = user_data
+    release = info_movie['original air date']
+    update.message.reply_text(f"Дата выхода: {release}")
 
 
 def menu_keyboard():
@@ -193,50 +276,10 @@ def get_id_movie_TMDB(bot, update, user_data):
         "query": user_data,
         "page": 1,
         "include_adult": "false"
-
-
-
     }
-    id_movie = requests.get(movie_url)
-
-def search_movie(bot, update, user_data):
-    """Обращается к базе данных IMDb
-    для поиска и выдачи информации о фильме.
-
-    Args:
-        bot: Объект, который передается обработчикам.
-        update: Сообщение которое пришло от Telegramm.
-        user_data: Хранит данные от пользователя.
-
-    """
-    try:
-        
-        director_info = info_movie['director']
-        id_director = director_info[0].personID
-        name_director = ia.get_person(id_director)
-        stars = info_movie['cast'][0:3]
-        name_actors = []
-        for stars_name in stars:
-            name_actors.append(stars_name['name'])
-        actors = ', '.join(name_actors)
-        release = info_movie['original air date']
-        
-        update.message.reply_text(f"Режиссер: {name_director['name']}")
-        update.message.reply_text(f"В главных ролях: {actors}")
-        update.message.reply_text(f"Дата выхода: {release}")
-        logging.info(f"""
-                    User: {update.message.chat.username},
-                    Chat id: {update.message.chat.id},
-                    Message: {update.message.text}
-                """)
-        print(f"""
-                User: {update.message.chat.username},
-                Chat id: {update.message.chat.id},
-                Message: {update.message.text}
-            """)
-    except IndexError:
-        update.message.reply_text('Ничего не найдено, проверьте запрос.')
-    return CHOOSING
+    result = requests.get(movie_url, params=params)
+    id_movie_TMBD = result.json()
+    return id_movie_TMBD
 
 
 def talk_to_me(bot, update, user_data):
