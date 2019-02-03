@@ -129,6 +129,35 @@ def get_movie_by_name(bot, update, user_data):
     return SEARCH_MOVIE
 
 
+def get_id_movie_TMDB(bot, update, user_data):
+    url = "https://api.themoviedb.org/3/search/movie"
+    params = {
+        "api_key": "bb46ace44fb728f5f7575bf3b4531ad3",
+        "language": "en-US",
+        "query": "Matrix",
+        "page": 1,
+        "include_adult": "false"
+    }
+    result = requests.get(url, params=params)
+    info_movie_TMDB = result.json()
+    user_data = info_movie_TMDB["results"][0]["id"]
+    get_box_office(bot, update, user_data)
+
+
+def get_box_office(bot, update, user_data):
+    movie_id = user_data
+    url = "https://api.themoviedb.org/3/movie"
+    params = {
+        "movie_id": movie_id,
+        "api_key": "bb46ace44fb728f5f7575bf3b4531ad3",
+        "language": "en-US"
+    }
+    result = requests.get(url, params=params)
+    movie_details = result.json()
+    box_office = movie_details["revenue"]  #TODO найти правильный ключ для сборов
+    print(box_office)
+
+
 def get_id_movie(bot, update, user_data):
     """Обращается к базе данных IMDb
     для получения id фильма.
@@ -225,6 +254,7 @@ def reply_release_date(bot, update, user_data):
     info_movie = user_data
     release = info_movie['original air date']
     update.message.reply_text(f"Дата выхода: {release}")
+    get_id_movie_TMDB(bot, update, user_data)
 
 
 def menu_keyboard():
@@ -266,20 +296,6 @@ def search_actor(bot, update, user_data):
     except IndexError:
         update.message.reply_text('Ничего не найдено, проверьте запрос.')
     return CHOOSING
-
-
-def get_id_movie_TMDB(bot, update, user_data):
-    movie_url = "https://api.themoviedb.org/3/search/movie"
-    params = {
-        "key": "bb46ace44fb728f5f7575bf3b4531ad3",
-        "language": "en-US",
-        "query": user_data,
-        "page": 1,
-        "include_adult": "false"
-    }
-    result = requests.get(movie_url, params=params)
-    id_movie_TMBD = result.json()
-    return id_movie_TMBD
 
 
 def talk_to_me(bot, update, user_data):
