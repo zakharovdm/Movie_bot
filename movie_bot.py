@@ -130,11 +130,12 @@ def get_movie_by_name(bot, update, user_data):
 
 
 def get_id_movie_TMDB(bot, update, user_data):
+    query = user_data
     url = "https://api.themoviedb.org/3/search/movie"
     params = {
         "api_key": "bb46ace44fb728f5f7575bf3b4531ad3",
         "language": "en-US",
-        "query": "Matrix",
+        "query": f"""{query}""",
         "page": 1,
         "include_adult": "false"
     }
@@ -146,16 +147,20 @@ def get_id_movie_TMDB(bot, update, user_data):
 
 def get_box_office(bot, update, user_data):
     movie_id = user_data
-    url = "https://api.themoviedb.org/3/movie"
+    url = f"""https://api.themoviedb.org/3/movie/{movie_id}"""
     params = {
-        "movie_id": movie_id,
         "api_key": "bb46ace44fb728f5f7575bf3b4531ad3",
         "language": "en-US"
     }
     result = requests.get(url, params=params)
     movie_details = result.json()
-    box_office = movie_details["revenue"]  #TODO найти правильный ключ для сборов
-    print(box_office)
+    user_data = movie_details["revenue"]
+    reply_box_office(bot, update, user_data)
+
+
+def reply_box_office(bot, update, user_data):
+    box_office = user_data
+    update.message.reply_text(f"""Сборы по миру: {box_office} $""")
 
 
 def get_id_movie(bot, update, user_data):
