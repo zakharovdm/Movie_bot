@@ -190,10 +190,18 @@ def get_id_movie(bot, update, user_data):
                 Chat id: {update.message.chat.id},
                 Message: {update.message.text}
             """)
+        get_movie_poster(bot, update, user_data)
         reply_description(bot, update, user_data)
     except IndexError:
         update.message.reply_text('Ничего не найдено, проверьте запрос.')
     return CHOOSING
+
+
+def get_movie_poster(bot, update, user_data):
+    info_movie = user_data
+    url = info_movie['cover url']
+    poster = requests.get(url).content
+    bot.send_photo(chat_id=update.message.chat.id, photo=poster)#TODO разобраться с ошибкой 
 
 
 def reply_description(bot, update, user_data):
