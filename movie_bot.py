@@ -200,8 +200,7 @@ def get_id_movie(bot, update, user_data):
 def get_movie_poster(bot, update, user_data):
     info_movie = user_data
     url = info_movie['cover url']
-    poster = requests.get(url).content
-    bot.send_photo(chat_id=update.message.chat.id, photo=poster)#TODO разобраться с ошибкой 
+    bot.send_photo(chat_id=update.message.chat.id, photo=url)
 
 
 def reply_description(bot, update, user_data):
