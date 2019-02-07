@@ -274,12 +274,11 @@ def reply_main_roles(bot, update, user_data):
 
     """
     info_movie = user_data
-    stars = info_movie['cast'][0:3]
     name_actors = []
-    for stars_name in stars:
-        name_actors.append(stars_name['name'])
-    actors = ', '.join(name_actors)
-    update.message.reply_text(f"В главных ролях: {actors}")
+    for actor in info_movie['cast'][:6]:
+        name_actors.append(f"""{actor['name']} в роли {actor.currentRole}""")
+    main_actors = '\n'.join(name_actors)
+    update.message.reply_text(f"""В главных ролях: {main_actors}""")
     reply_release_date(bot, update, user_data)
 
 
