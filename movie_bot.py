@@ -130,6 +130,15 @@ def get_movie_by_name(bot, update, user_data):
 
 
 def get_id_movie_TMDB(bot, update, user_data):
+    """Получение id фильма на API TMDB.
+        Обращаемся к API TMDB.
+
+    Args:
+        bot: Объект, который передается обработчикам.
+        update: Сообщение которое пришло от Telegramm.
+        user_data: Хранит данные от пользователя.
+
+    """
     query = user_data
     url = "https://api.themoviedb.org/3/search/movie"
     params = {
@@ -146,6 +155,15 @@ def get_id_movie_TMDB(bot, update, user_data):
 
 
 def get_box_office(bot, update, user_data):
+    """Выдача сборов фильма.
+        Обращаемся к API TMDB.
+
+    Args:
+        bot: Объект, который передается обработчикам.
+        update: Сообщение которое пришло от Telegramm.
+        user_data: Хранит данные от пользователя.
+
+    """
     movie_id = user_data
     url = f"""https://api.themoviedb.org/3/movie/{movie_id}"""
     params = {
@@ -198,6 +216,14 @@ def get_id_movie(bot, update, user_data):
 
 
 def get_movie_poster(bot, update, user_data):
+    """Выдача постера к фильму.
+
+    Args:
+        bot: Объект, который передается обработчикам.
+        update: Сообщение которое пришло от Telegramm.
+        user_data: Хранит данные от пользователя.
+
+    """
     info_movie = user_data
     url = info_movie['cover url']
     bot.send_photo(chat_id=update.message.chat.id, photo=url)
@@ -213,7 +239,9 @@ def reply_description(bot, update, user_data):
 
     """
     info_movie = user_data
-    update.message.reply_text(info_movie['plot'][0])
+    parts = info_movie['plot'][0].split('::')
+    short_description = parts[0]
+    update.message.reply_text(short_description)
     reply_directors(bot, update, user_data)
 
 
