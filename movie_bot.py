@@ -246,7 +246,7 @@ def reply_description(bot, update, user_data):
 
 
 def reply_directors(bot, update, user_data):
-    """Выдача режиссера фильма.
+    """Выдача режиссеров фильма.
 
     Args:
         bot: Объект, который передается обработчикам.
@@ -254,12 +254,13 @@ def reply_directors(bot, update, user_data):
         user_data: Хранит данные от пользователя.
 
     """
-    ia = imdb.IMDb()
     info_movie = user_data
-    director_info = info_movie['director']
-    id_director = director_info[0].personID
-    name_director = ia.get_person(id_director)
-    update.message.reply_text(f"Режиссер: {name_director['name']}")
+    directors_info = info_movie['director'][0:]
+    name_director = []
+    for directors in directors_info:
+        name_director.append(directors['name'])
+    producers = ', '.join(name_director)
+    update.message.reply_text(f"Режиссеры: {producers}")
     reply_main_roles(bot, update, user_data)
 
 
