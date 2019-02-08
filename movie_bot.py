@@ -129,7 +129,7 @@ def get_movie_by_name(bot, update, user_data):
     return SEARCH_MOVIE
 
 
-def get_id_movie_TMDB(bot, update, user_data):
+def get_movie_TMDB_id(bot, update, user_data):
     """Получение id фильма на API TMDB.
         Обращаемся к API TMDB.
 
@@ -179,9 +179,11 @@ def get_box_office(bot, update, user_data):
 def reply_box_office(bot, update, user_data):
     box_office = user_data
     update.message.reply_text(f"""Сборы по миру: {box_office} $""")
+    update.message.reply_text("Что еще ты хочешь найти? Выбирай.")
+    return CHOOSING
 
 
-def get_id_movie(bot, update, user_data):
+def get_movie_id(bot, update, user_data):
     """Обращается к базе данных IMDb
     для получения id фильма.
 
@@ -196,8 +198,8 @@ def get_id_movie(bot, update, user_data):
         user_query = update.message.text
         user_data['movie'] = user_query
         movie = ia.search_movie(user_query)
-        id_movie = movie[0].movieID
-        user_data = ia.get_movie(id_movie)
+        movie_id = movie[0].movieID
+        user_data = ia.get_movie(movie_id)
         logging.info(f"""
                     User: {update.message.chat.username},
                     Chat id: {update.message.chat.id},
@@ -294,7 +296,7 @@ def reply_release_date(bot, update, user_data):
     info_movie = user_data
     release = info_movie['original air date']
     update.message.reply_text(f"Дата выхода: {release}")
-    get_id_movie_TMDB(bot, update, user_data)
+    get_movie_TMDB_id(bot, update, user_data)
 
 
 def menu_keyboard():
@@ -320,8 +322,8 @@ def search_actor(bot, update, user_data):
         user_query = update.message.text
         user_data['actor'] = user_query
         actor = ia.search_person(user_query)
-        id_actor = actor[0].personID
-        info_actor = ia.get_person(id_actor)
+        actor_id = actor[0].personID
+        info_actor = ia.get_person(actor_id)
         logging.info(f"""
                     User: {update.message.chat.username},
                     Chat id: {update.message.chat.id},
@@ -386,7 +388,7 @@ def main():
 
             SEARCH_MOVIE: [RegexHandler('^(Отмена)$', back_to_menu,
                                         pass_user_data=True),
-                           MessageHandler(Filters.text, get_id_movie,
+                           MessageHandler(Filters.text, get_movie_id,
                                           pass_user_data=True)],
         },
 
