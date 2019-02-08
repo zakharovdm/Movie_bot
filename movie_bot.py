@@ -3,6 +3,8 @@ import imdb
 import logging
 import requests
 import settings
+import math
+import textwrap
 
 
 from telegram.ext import (Updater, CommandHandler, RegexHandler,
@@ -183,6 +185,39 @@ def reply_box_office(bot, update, user_data):
     return CHOOSING
 
 
+def get_actor_id(bot, update, user_data):
+    """Обращается к базе данных IMDb
+    для поиска и выдачи информации о актере.
+
+    Args:
+        bot: Объект, который передается обработчикам.
+        update: Сообщение которое пришло от Telegramm.
+        user_data: Хранит данные от пользователя.
+
+    """
+    try:
+        ia = imdb.IMDb()
+        user_query = update.message.text
+        user_data['actor'] = user_query
+        actor = ia.search_person(user_query)
+        actor_id = actor[0].personID
+        user_data = ia.get_person(actor_id)
+        logging.info(f"""
+                    User: {update.message.chat.username},
+                    Chat id: {update.message.chat.id},
+                    Message: {update.message.text}
+                    """)
+        print(f"""
+              User: {update.message.chat.username},
+              Chat id: {update.message.chat.id},
+              Message: {update.message.text}
+            """)
+        reply_actor_photo(bot, update, user_data)
+    except IndexError:
+        update.message.reply_text('Ничего не найдено, проверьте запрос.')
+    return CHOOSING
+
+
 def get_movie_id(bot, update, user_data):
     """Обращается к базе данных IMDb
     для получения id фильма.
@@ -299,17 +334,8 @@ def reply_release_date(bot, update, user_data):
     get_movie_TMDB_id(bot, update, user_data)
 
 
-def menu_keyboard():
-    film_keyboard = ReplyKeyboardMarkup([['Поиск фильма', 'Поиск актера'],
-                                         ['Отмена']
-                                         ], resize_keyboard=True
-                                        )
-    return film_keyboard
-
-
-def search_actor(bot, update, user_data):
-    """Обращается к базе данных IMDb
-    для поиска и выдачи информации о актере.
+def reply_actor_photo(bot, update, user_data):
+    """Выдача биографии актера.
 
     Args:
         bot: Объект, который передается обработчикам.
@@ -317,27 +343,32 @@ def search_actor(bot, update, user_data):
         user_data: Хранит данные от пользователя.
 
     """
-    try:
-        ia = imdb.IMDb()
-        user_query = update.message.text
-        user_data['actor'] = user_query
-        actor = ia.search_person(user_query)
-        actor_id = actor[0].personID
-        info_actor = ia.get_person(actor_id)
-        logging.info(f"""
-                    User: {update.message.chat.username},
-                    Chat id: {update.message.chat.id},
-                    Message: {update.message.text}
-                    """)
-        print(f"""
-              User: {update.message.chat.username},
-              Chat id: {update.message.chat.id},
-              Message: {update.message.text}
-            """)
-        update.message.reply_text(info_actor['bio'])
-    except IndexError:
-        update.message.reply_text('Ничего не найдено, проверьте запрос.')
+    info_actor = user_data
+    url = info_actor['headshot']
+    bot.send_photo(chat_id=update.message.chat.id, photo=url)
+    reply_actor_birth_date(bot, update, user_data)
+
+
+def reply_actor_birth_date(bot, update, user_data):
+    info_actor = user_data
+    update.message.reply_text(f"""Дата рождения: {info_actor['birth date']}""")
+    reply_actor_actor_features(bot, update, user_data)
+
+
+def reply_actor_actor_features(bot, update, user_data):
+    info_actor = user_data
+    features = '.'.join(info_actor['trade mark'])
+    update.message.reply_text(f"""О том, кого обычно играет: {features}""")
+    update.message.reply_text("Что еще ты хочешь найти? Выбирай.")
     return CHOOSING
+
+
+def menu_keyboard():
+    film_keyboard = ReplyKeyboardMarkup([['Поиск фильма', 'Поиск актера'],
+                                         ['Отмена']
+                                         ], resize_keyboard=True
+                                        )
+    return film_keyboard
 
 
 def talk_to_me(bot, update, user_data):
@@ -383,7 +414,7 @@ def main():
 
             SEARCH_ACTOR: [RegexHandler('^(Отмена)$', back_to_menu,
                                         pass_user_data=True),
-                           MessageHandler(Filters.text, search_actor,
+                           MessageHandler(Filters.text, get_actor_id,
                                           pass_user_data=True)],
 
             SEARCH_MOVIE: [RegexHandler('^(Отмена)$', back_to_menu,
