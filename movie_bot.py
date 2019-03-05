@@ -1,3 +1,5 @@
+#TODO Хорошая практика - сначала импортируем стандартные пакеты, потом специфические и сторонние
+
 import greeting
 import imdb
 import logging
@@ -6,21 +8,21 @@ import settings
 import math
 import textwrap
 
-
+#TODO Лишние пробелы
 from telegram.ext import (Updater, CommandHandler, RegexHandler,
                           ConversationHandler, MessageHandler, Filters)
 
 from telegram import ReplyKeyboardMarkup
 
-
+#TODO Лишние пробелы
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
                     level=logging.INFO,
                     filename='movie_bot.log'
                     )
 
-
+#TODO Лишние пробелы
 CHOOSING, SEARCH_ACTOR, SEARCH_MOVIE = range(3)
-
+#TODO Лишние пробелы
 
 def back_to_menu(bot, update, user_data):
     """Возвращает в главное меню.
@@ -31,6 +33,7 @@ def back_to_menu(bot, update, user_data):
         user_data: Хранит данные от пользователя.
 
     """
+    #TODO У всех этих принтов и логгирования проблемы с отступами. https://sgillies.net/2017/05/30/python-multi-line-comments-and-triple-quoted-strings.html
     logging.info(f"""
                     User: {update.message.chat.username},
                     Chat id: {update.message.chat.id},
@@ -58,6 +61,7 @@ def greet_user(bot, update, user_data):
         user_data: Хранит данные от пользователя.
 
     """
+    #TODO Если ты в одном месте используешь f-строки, то используй их везде. Или везде .format()
     ave_text = 'Привет {}! {} '.format(update.message.chat.first_name,
                                        greeting.greet_text)
     logging.info(f"""
@@ -146,9 +150,9 @@ def get_movie_TMDB_id(bot, update, user_data):
     params = {
         "api_key": "bb46ace44fb728f5f7575bf3b4531ad3",
         "language": "en-US",
-        "query": f"""{query}""",
+        "query": f"""{query}""", #TODO зачем тут тройные кавычки? 
         "page": 1,
-        "include_adult": "false"
+        "include_adult": "false"  #TODO Необходимо унифицировать использование " " и ' ', а то в одних строках одно, в других - другое
     }
     result = requests.get(url, params=params)
     info_movie_TMDB = result.json()
@@ -229,7 +233,7 @@ def get_movie_id(bot, update, user_data):
 
     """
     try:
-        ia = imdb.IMDb()
+        ia = imdb.IMDb() #TODO ia не очень название для переменной
         user_query = update.message.text
         user_data['movie'] = user_query
         movie = ia.search_movie(user_query)
@@ -276,7 +280,7 @@ def reply_description(bot, update, user_data):
 
     """
     info_movie = user_data
-    parts = info_movie['plot'][0].split('::')
+    parts = info_movie['plot'][0].split('::') #TODOTODO parts - не очень название для переменной, я не понимаю, что внутри
     short_description = parts[0]
     update.message.reply_text(short_description)
     reply_directors(bot, update, user_data)
@@ -365,7 +369,7 @@ def reply_actor_actor_features(bot, update, user_data):
 
 def menu_keyboard():
     film_keyboard = ReplyKeyboardMarkup([['Поиск фильма', 'Поиск актера'],
-                                         ['Отмена']
+                                         ['Отмена'] #TODO что с квадратными скобками
                                          ], resize_keyboard=True
                                         )
     return film_keyboard
@@ -388,15 +392,16 @@ def talk_to_me(bot, update, user_data):
 
 
 def main():
+    #TODO Не очень информативно
     """
-
+    
     Запускает бот и работает с диалогом.
 
     """
     moviebot = Updater(settings.API_KEY, request_kwargs=settings.PROXY)
 
     logging.info('Бот запускается')
-    print('Бот запускается')
+    print('Бот запускается') #TODO А когда запустится?
 
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', greet_user,
