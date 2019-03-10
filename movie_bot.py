@@ -3,8 +3,6 @@ import imdb
 import logging
 import requests
 import settings
-import math
-import textwrap
 
 
 from telegram.ext import (Updater, CommandHandler, RegexHandler,
@@ -141,7 +139,7 @@ def get_movie_TMDB_id(bot, update, user_data):
         user_data: Хранит данные от пользователя.
 
     """
-    query = user_data
+    query = update.message.text
     url = "https://api.themoviedb.org/3/search/movie"
     params = {
         "api_key": "bb46ace44fb728f5f7575bf3b4531ad3",
@@ -152,11 +150,12 @@ def get_movie_TMDB_id(bot, update, user_data):
     }
     result = requests.get(url, params=params)
     info_movie_TMDB = result.json()
-    user_data = info_movie_TMDB["results"][0]["id"]
-    get_box_office(bot, update, user_data)
+    TMDB_id = info_movie_TMDB["results"][0]["id"]
+    get_movie_id(bot, update, user_data, TMDB_id)
+    get_box_office(bot, update, user_data, TMDB_id)
 
 
-def get_box_office(bot, update, user_data):
+def get_box_office(bot, update, user_data, TMDB_id):
     """Выдача сборов фильма.
         Обращаемся к API TMDB.
 
@@ -166,7 +165,7 @@ def get_box_office(bot, update, user_data):
         user_data: Хранит данные от пользователя.
 
     """
-    movie_id = user_data
+    movie_id = TMDB_id
     url = f"""https://api.themoviedb.org/3/movie/{movie_id}"""
     params = {
         "api_key": "bb46ace44fb728f5f7575bf3b4531ad3",
@@ -175,11 +174,11 @@ def get_box_office(bot, update, user_data):
     result = requests.get(url, params=params)
     movie_details = result.json()
     user_data = movie_details["revenue"]
-    reply_box_office(bot, update, user_data)
+    reply_box_office(bot, update, user_data, TMDB_id)
 
 
-def reply_box_office(bot, update, user_data):
-    box_office = user_data
+def reply_box_office(bot, update, user_data, TMDB_id):
+    box_office = TMDB_id
     update.message.reply_text(f"""Сборы по миру: {box_office} $""")
     update.message.reply_text("Что еще ты хочешь найти? Выбирай.")
     return CHOOSING
@@ -218,7 +217,7 @@ def get_actor_id(bot, update, user_data):
     return CHOOSING
 
 
-def get_movie_id(bot, update, user_data):
+def get_movie_id(bot, update, user_data, TMDB_id):
     """Обращается к базе данных IMDb
     для получения id фильма.
 
@@ -245,14 +244,14 @@ def get_movie_id(bot, update, user_data):
                 Chat id: {update.message.chat.id},
                 Message: {update.message.text}
             """)
-        get_movie_poster(bot, update, user_data)
+        get_movie_poster(bot, update, user_data, TMDB_id)
         reply_description(bot, update, user_data)
     except IndexError:
         update.message.reply_text('Ничего не найдено, проверьте запрос.')
     return CHOOSING
 
 
-def get_movie_poster(bot, update, user_data):
+def get_movie_poster(bot, update, user_data, TMDB_id):
     """Выдача постера к фильму.
 
     Args:
@@ -261,9 +260,17 @@ def get_movie_poster(bot, update, user_data):
         user_data: Хранит данные от пользователя.
 
     """
-    info_movie = user_data
-    url = info_movie['cover url']
-    bot.send_photo(chat_id=update.message.chat.id, photo=url)
+    movie_id = TMDB_id
+    url = f"""https://api.themoviedb.org/3/movie/{movie_id}"""
+    params = {
+        "api_key": "bb46ace44fb728f5f7575bf3b4531ad3",
+        "language": "en-US"
+    }
+    result = requests.get(url, params=params)
+    poster_json = result.json()
+    poster_file = poster_json["poster_path"]
+    poster_url = f"""https://image.tmdb.org/t/p/w500{poster_file}"""
+    bot.send_photo(chat_id=update.message.chat.id, photo=poster_url)
 
 
 def reply_description(bot, update, user_data):
@@ -301,7 +308,7 @@ def reply_directors(bot, update, user_data):
     reply_main_roles(bot, update, user_data)
 
 
-def reply_main_roles(bot, update, user_data):
+def reply_main_roles(bot, update, user_data, TMDB_id):
     """Выдача актеров в главных ролях фильма.
 
     Args:
@@ -316,10 +323,10 @@ def reply_main_roles(bot, update, user_data):
         name_actors.append(f"""{actor['name']} в роли {actor.currentRole}""")
     main_actors = '\n'.join(name_actors)
     update.message.reply_text(f"""В главных ролях: {main_actors}""")
-    reply_release_date(bot, update, user_data)
+    reply_release_date(bot, update, user_data, TMDB_id)
 
 
-def reply_release_date(bot, update, user_data):
+def reply_release_date(bot, update, user_data, TMDB_id):
     """Выдача даты выпуска.
 
     Args:
@@ -331,7 +338,6 @@ def reply_release_date(bot, update, user_data):
     info_movie = user_data
     release = info_movie['original air date']
     update.message.reply_text(f"Дата выхода: {release}")
-    get_movie_TMDB_id(bot, update, user_data)
 
 
 def reply_actor_photo(bot, update, user_data):
@@ -416,10 +422,9 @@ def main():
                                         pass_user_data=True),
                            MessageHandler(Filters.text, get_actor_id,
                                           pass_user_data=True)],
-
             SEARCH_MOVIE: [RegexHandler('^(Отмена)$', back_to_menu,
                                         pass_user_data=True),
-                           MessageHandler(Filters.text, get_movie_id,
+                           MessageHandler(Filters.text, get_movie_TMDB_id,
                                           pass_user_data=True)],
         },
 
