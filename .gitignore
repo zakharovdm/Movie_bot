@@ -2,3 +2,6 @@ movie_bot.log
 settings.py
 __pycache__/
 env/
+vevn
+.vscode
+.idea
