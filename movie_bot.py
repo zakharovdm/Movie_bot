@@ -8,7 +8,7 @@ import settings
 from telegram.ext import (Updater, CommandHandler, RegexHandler,
                           ConversationHandler, MessageHandler, Filters)
 
-from telegram import ReplyKeyboardMarkup
+from telegram import ReplyKeyboardMarkup, KeyboardButton, InlineQueryResultLocation
 
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
@@ -373,9 +373,31 @@ def reply_actor_biography(bot, update, user_data, TMDB_actor_id):
     return CHOOSING
 
 
+def get_location(bot, update, user_data):
+    longitude = update.message.location['longitude']
+    latitude = update.message.location['latitude']
+    url = 'https://geocode-maps.yandex.ru/1.x'
+    params = {
+        'apikey': '6856902f-25a4-4e4a-8b85-dffe3ded05f3',
+        'format': 'json',
+        'geocode': f'{longitude},{latitude}',
+        'kind': 'house',
+        'results': 1
+    }
+    result = requests.get(url, params=params)
+    address = result.json()
+    location = (address['response']['GeoObjectCollection']['featureMember'][0]
+                ['GeoObject']['metaDataProperty']
+                ['GeocoderMetaData']['text'])
+    update.message.reply_text(location)
+    return CHOOSING
+
+
 def menu_keyboard():
+    location_button = KeyboardButton('Определить месторасположение',
+                                     request_location=True)
     film_keyboard = ReplyKeyboardMarkup([['Поиск фильма', 'Поиск актера'],
-                                         ['Отмена']
+                                         ['Отмена', location_button]
                                          ], resize_keyboard=True
                                         )
     return film_keyboard
@@ -439,6 +461,8 @@ def main():
 
     dp = moviebot.dispatcher
     dp.add_handler(conv_handler)
+    dp.add_handler(MessageHandler(Filters.location, get_location,
+                                  pass_user_data=True))
     dp.add_handler(MessageHandler(Filters.text, talk_to_me,
                                   pass_user_data=True))
     moviebot.start_polling()
