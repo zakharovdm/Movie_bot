@@ -1,28 +1,20 @@
-#TODO Хорошая практика - сначала импортируем стандартные пакеты, потом специфические и сторонние
-
-import greeting
-import imdb
 import logging
 import requests
+import imdb
+import greeting
 import settings
-import math
-import textwrap
 
-#TODO Лишние пробелы
 from telegram.ext import (Updater, CommandHandler, RegexHandler,
                           ConversationHandler, MessageHandler, Filters)
 
 from telegram import ReplyKeyboardMarkup
 
-#TODO Лишние пробелы
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
                     level=logging.INFO,
                     filename='movie_bot.log'
                     )
 
-#TODO Лишние пробелы
 CHOOSING, SEARCH_ACTOR, SEARCH_MOVIE = range(3)
-#TODO Лишние пробелы
 
 def back_to_menu(bot, update, user_data):
     """Возвращает в главное меню.
@@ -33,17 +25,16 @@ def back_to_menu(bot, update, user_data):
         user_data: Хранит данные от пользователя.
 
     """
-    #TODO У всех этих принтов и логгирования проблемы с отступами. https://sgillies.net/2017/05/30/python-multi-line-comments-and-triple-quoted-strings.html
     logging.info(f"""
-                    User: {update.message.chat.username},
-                    Chat id: {update.message.chat.id},
-                    Message: {update.message.text}
-                """)
+                 User: {update.message.chat.username},
+                 Chat id: {update.message.chat.id},
+                 Message: {update.message.text}
+             """)
     print(f"""
-              User: {update.message.chat.username},
-              Chat id: {update.message.chat.id},
-              Message: {update.message.text}
-            """)
+         User: {update.message.chat.username},
+         Chat id: {update.message.chat.id},
+         Message: {update.message.text}
+      """)
     update.message.reply_text('пока')
 
     return ConversationHandler.END
@@ -61,19 +52,17 @@ def greet_user(bot, update, user_data):
         user_data: Хранит данные от пользователя.
 
     """
-    #TODO Если ты в одном месте используешь f-строки, то используй их везде. Или везде .format()
-    ave_text = 'Привет {}! {} '.format(update.message.chat.first_name,
-                                       greeting.greet_text)
+    ave_text = f"""Привет {update.message.chat.first_name}! {greeting.greet_text}"""
     logging.info(f"""
-                    User: {update.message.chat.username},
-                    Chat id: {update.message.chat.id},
-                    Message: {update.message.text}
-                """)
+                 User: {update.message.chat.username},
+                 Chat id: {update.message.chat.id},
+                 Message: {update.message.text}
+             """)
     print(f"""
-              User: {update.message.chat.username},
-              Chat id: {update.message.chat.id},
-              Message: {update.message.text}
-            """)
+          User: {update.message.chat.username},
+          Chat id: {update.message.chat.id},
+          Message: {update.message.text}
+      """)
     update.message.reply_text(ave_text, reply_markup=menu_keyboard())
 
     return CHOOSING
@@ -92,17 +81,17 @@ def get_actor_by_name(bot, update, user_data):
         user_data: Хранит данные от пользователя.
 
     """
-    question = 'Какого актера найти?'
+    question = "Какого актера найти?"
     logging.info(f"""
-                    User: {update.message.chat.username},
-                    Chat id: {update.message.chat.id},
-                    Message: {update.message.text}
-                """)
+                 User: {update.message.chat.username},
+                 Chat id: {update.message.chat.id},
+                 Message: {update.message.text}
+             """)
     print(f"""
-              User: {update.message.chat.username},
-              Chat id: {update.message.chat.id},
-              Message: {update.message.text}
-            """)
+          User: {update.message.chat.username},
+          Chat id: {update.message.chat.id},
+          Message: {update.message.text}
+      """)
     update.message.reply_text(question)
     return SEARCH_ACTOR
 
@@ -120,17 +109,17 @@ def get_movie_by_name(bot, update, user_data):
         user_data: Хранит данные от пользователя.
 
     """
-    question = 'Какой фильм найти?'
+    question = "Какой фильм найти?"
     logging.info(f"""
-                    User: {update.message.chat.username},
-                    Chat id: {update.message.chat.id},
-                    Message: {update.message.text}
-                """)
+                User: {update.message.chat.username},
+                Chat id: {update.message.chat.id},
+                Message: {update.message.text}
+             """)
     print(f"""
-              User: {update.message.chat.username},
-              Chat id: {update.message.chat.id},
-              Message: {update.message.text}
-            """)
+         User: {update.message.chat.username},
+         Chat id: {update.message.chat.id},
+         Message: {update.message.text}
+      """)
     update.message.reply_text(question)
     return SEARCH_MOVIE
 
@@ -150,9 +139,9 @@ def get_movie_TMDB_id(bot, update, user_data):
     params = {
         "api_key": "bb46ace44fb728f5f7575bf3b4531ad3",
         "language": "en-US",
-        "query": f"""{query}""", #TODO зачем тут тройные кавычки? 
+        "query": query,  
         "page": 1,
-        "include_adult": "false"  #TODO Необходимо унифицировать использование " " и ' ', а то в одних строках одно, в других - другое
+        "include_adult": "false"  
     }
     result = requests.get(url, params=params)
     info_movie_TMDB = result.json()
@@ -200,25 +189,25 @@ def get_actor_id(bot, update, user_data):
 
     """
     try:
-        ia = imdb.IMDb()
+        data_imdb = imdb.IMDb()
         user_query = update.message.text
-        user_data['actor'] = user_query
-        actor = ia.search_person(user_query)
+        user_data["actor"] = user_query
+        actor = data_imdb.search_person(user_query)
         actor_id = actor[0].personID
-        user_data = ia.get_person(actor_id)
+        user_data = data_imdb.get_person(actor_id)
         logging.info(f"""
                     User: {update.message.chat.username},
                     Chat id: {update.message.chat.id},
                     Message: {update.message.text}
-                    """)
+                """)
         print(f"""
               User: {update.message.chat.username},
               Chat id: {update.message.chat.id},
               Message: {update.message.text}
-            """)
+          """)
         reply_actor_photo(bot, update, user_data)
     except IndexError:
-        update.message.reply_text('Ничего не найдено, проверьте запрос.')
+        update.message.reply_text("Ничего не найдено, проверьте запрос.")
     return CHOOSING
 
 
@@ -233,12 +222,12 @@ def get_movie_id(bot, update, user_data):
 
     """
     try:
-        ia = imdb.IMDb() #TODO ia не очень название для переменной
+        data_imdb = imdb.IMDb() 
         user_query = update.message.text
         user_data['movie'] = user_query
-        movie = ia.search_movie(user_query)
+        movie = data_imdb.search_movie(user_query)
         movie_id = movie[0].movieID
-        user_data = ia.get_movie(movie_id)
+        user_data = data_imdb.get_movie(movie_id)
         logging.info(f"""
                     User: {update.message.chat.username},
                     Chat id: {update.message.chat.id},
@@ -252,7 +241,7 @@ def get_movie_id(bot, update, user_data):
         get_movie_poster(bot, update, user_data)
         reply_description(bot, update, user_data)
     except IndexError:
-        update.message.reply_text('Ничего не найдено, проверьте запрос.')
+        update.message.reply_text("Ничего не найдено, проверьте запрос.")
     return CHOOSING
 
 
@@ -266,7 +255,7 @@ def get_movie_poster(bot, update, user_data):
 
     """
     info_movie = user_data
-    url = info_movie['cover url']
+    url = info_movie["cover url"]
     bot.send_photo(chat_id=update.message.chat.id, photo=url)
 
 
@@ -280,8 +269,8 @@ def reply_description(bot, update, user_data):
 
     """
     info_movie = user_data
-    parts = info_movie['plot'][0].split('::') #TODOTODO parts - не очень название для переменной, я не понимаю, что внутри
-    short_description = parts[0]
+    part_of_description = info_movie["plot"][0].split("::") 
+    short_description = part_of_description[0]
     update.message.reply_text(short_description)
     reply_directors(bot, update, user_data)
 
@@ -296,11 +285,11 @@ def reply_directors(bot, update, user_data):
 
     """
     info_movie = user_data
-    directors_info = info_movie['director'][0:]
+    directors_info = info_movie["director"][0:]
     name_director = []
     for directors in directors_info:
-        name_director.append(directors['name'])
-    producers = ', '.join(name_director)
+        name_director.append(directors["name"])
+    producers = ", ".join(name_director)
     update.message.reply_text(f"Режиссеры: {producers}")
     reply_main_roles(bot, update, user_data)
 
@@ -316,15 +305,15 @@ def reply_main_roles(bot, update, user_data):
     """
     info_movie = user_data
     name_actors = []
-    for actor in info_movie['cast'][:6]:
-        name_actors.append(f"""{actor['name']} в роли {actor.currentRole}""")
-    main_actors = '\n'.join(name_actors)
+    for actor in info_movie["cast"][:6]:
+        name_actors.append(f"""{actor["name"]} в роли {actor.currentRole}""")
+    main_actors = "\n".join(name_actors)
     update.message.reply_text(f"""В главных ролях: {main_actors}""")
     reply_release_date(bot, update, user_data)
 
 
 def reply_release_date(bot, update, user_data):
-    """Выдача даты выпуска.
+    """ Выдача даты выпуска.
 
     Args:
         bot: Объект, который передается обработчикам.
@@ -333,7 +322,7 @@ def reply_release_date(bot, update, user_data):
 
     """
     info_movie = user_data
-    release = info_movie['original air date']
+    release = info_movie["original air date"]
     update.message.reply_text(f"Дата выхода: {release}")
     get_movie_TMDB_id(bot, update, user_data)
 
@@ -348,28 +337,28 @@ def reply_actor_photo(bot, update, user_data):
 
     """
     info_actor = user_data
-    url = info_actor['headshot']
+    url = info_actor["headshot"]
     bot.send_photo(chat_id=update.message.chat.id, photo=url)
     reply_actor_birth_date(bot, update, user_data)
 
 
 def reply_actor_birth_date(bot, update, user_data):
     info_actor = user_data
-    update.message.reply_text(f"""Дата рождения: {info_actor['birth date']}""")
+    update.message.reply_text(f"""Дата рождения: {info_actor["birth date"]}""")
     reply_actor_actor_features(bot, update, user_data)
 
 
 def reply_actor_actor_features(bot, update, user_data):
     info_actor = user_data
-    features = '.'.join(info_actor['trade mark'])
+    features = ".".join(info_actor["trade mark"])
     update.message.reply_text(f"""О том, кого обычно играет: {features}""")
     update.message.reply_text("Что еще ты хочешь найти? Выбирай.")
     return CHOOSING
 
 
 def menu_keyboard():
-    film_keyboard = ReplyKeyboardMarkup([['Поиск фильма', 'Поиск актера'],
-                                         ['Отмена'] #TODO что с квадратными скобками
+    film_keyboard = ReplyKeyboardMarkup([["Поиск фильма", "Поиск актера"],
+                                         ["Отмена"] #TODO что с квадратными скобками
                                          ], resize_keyboard=True
                                         )
     return film_keyboard
@@ -384,25 +373,25 @@ def talk_to_me(bot, update, user_data):
                     Message: {update.message.text}
                 """)
         print(f"""
-                User: {update.message.chat.username},
-                Chat id: {update.message.chat.id},
-                Message: {update.message.text}
+              User: {update.message.chat.username},
+              Chat id: {update.message.chat.id},
+              Message: {update.message.text}
             """)
         update.message.reply_text(response_user, reply_markup=menu_keyboard())
 
 
 def main():
-    #TODO Не очень информативно
+
     """
     
-    Запускает бот и работает с диалогом.
+    Запускает бот, получает API ключ телеграмм бота, управляет остальными функциями.
 
     """
     moviebot = Updater(settings.API_KEY, request_kwargs=settings.PROXY)
 
-    logging.info('Бот запускается')
-    print('Бот запускается') #TODO А когда запустится?
-
+    logging.info('Бот активен')
+    print('Бот активен') 
+    
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', greet_user,
                                      pass_user_data=True),
