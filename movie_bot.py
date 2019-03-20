@@ -357,10 +357,11 @@ def reply_actor_actor_features(bot, update, user_data):
 
 
 def menu_keyboard():
-    film_keyboard = ReplyKeyboardMarkup([["Поиск фильма", "Поиск актера"],
-                                         ["Отмена"] #TODO что с квадратными скобками
-                                         ], resize_keyboard=True
-                                        )
+    film_keyboard = ReplyKeyboardMarkup([
+                                         ["Поиск фильма", "Поиск актера"],
+                                         ["Отмена"]
+                                        ], resize_keyboard=True
+                                       )
     return film_keyboard
 
 
