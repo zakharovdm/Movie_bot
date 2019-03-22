@@ -3,12 +3,9 @@ import imdb
 import logging
 import requests
 import settings
-
-
 from telegram.ext import (Updater, CommandHandler, RegexHandler,
                           ConversationHandler, MessageHandler, Filters)
-
-from telegram import ReplyKeyboardMarkup, KeyboardButton, InlineQueryResultLocation
+from telegram import ReplyKeyboardMarkup, KeyboardButton
 
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
@@ -30,15 +27,15 @@ def back_to_menu(bot, update, user_data):
 
     """
     logging.info(f"""
-                    User: {update.message.chat.username},
-                    Chat id: {update.message.chat.id},
-                    Message: {update.message.text}
-                """)
+                User: {update.message.chat.username},
+                Chat id: {update.message.chat.id},
+                Message: {update.message.text}
+             """)
     print(f"""
-              User: {update.message.chat.username},
-              Chat id: {update.message.chat.id},
-              Message: {update.message.text}
-            """)
+          User: {update.message.chat.username},
+          Chat id: {update.message.chat.id},
+          Message: {update.message.text}
+      """)
     update.message.reply_text('пока')
 
     return ConversationHandler.END
@@ -144,7 +141,7 @@ def get_movie_TMDB_id(bot, update, user_data):
     params = {
         "api_key": "bb46ace44fb728f5f7575bf3b4531ad3",
         "language": "en-US",
-        "query": f"""{query}""",
+        "query": query,
         "page": 1,
         "include_adult": "false"
     }
@@ -394,10 +391,10 @@ def get_location(bot, update, user_data):
 
 
 def menu_keyboard():
-    location_button = KeyboardButton('Определить месторасположение',
-                                     request_location=True)
+    get_location = KeyboardButton('Определить месторасположение',
+                                  request_location=True)
     film_keyboard = ReplyKeyboardMarkup([['Поиск фильма', 'Поиск актера'],
-                                         ['Отмена', location_button]
+                                         ['Отмена', get_location]
                                          ], resize_keyboard=True
                                         )
     return film_keyboard
