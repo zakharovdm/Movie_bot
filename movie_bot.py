@@ -1,21 +1,20 @@
-import greeting
-import imdb
 import logging
 import requests
+import imdb
+import greeting
 import settings
+
 from telegram.ext import (Updater, CommandHandler, RegexHandler,
                           ConversationHandler, MessageHandler, Filters)
-from telegram import ReplyKeyboardMarkup, KeyboardButton
 
+from telegram import ReplyKeyboardMarkup, KeyboardButton
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
                     level=logging.INFO,
                     filename='movie_bot.log'
                     )
 
-
 CHOOSING, SEARCH_ACTOR, SEARCH_MOVIE = range(3)
-
 
 def back_to_menu(bot, update, user_data):
     """Возвращает в главное меню.
