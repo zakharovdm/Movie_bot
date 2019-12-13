@@ -1,10 +1,15 @@
-import requests
 import handlers
+import requests
 
 
 def reply_actor_biography(bot, update, user_data, TMDB_actor_id):
     bio = user_data["biography"]
     update.message.reply_text(f"""Биография: {bio}""")
+
+
+def reply_box_office(bot, update, user_data, TMDB_id):
+    box_office = user_data
+    update.message.reply_text(f"""Сборы по миру: {box_office} $""")
     update.message.reply_text("Что еще ты хочешь найти? Выбирай.")
     return handlers.CHOOSING
 
@@ -104,13 +109,6 @@ def reply_description(bot, update, user_data, TMDB_id):
     short_description = parts[0]
     update.message.reply_text(short_description)
     reply_directors(bot, update, user_data, TMDB_id)
-
-
-def reply_box_office(bot, update, user_data, TMDB_id):
-    box_office = user_data
-    update.message.reply_text(f"""Сборы по миру: {box_office} $""")
-    update.message.reply_text("Что еще ты хочешь найти? Выбирай.")
-    return handlers.CHOOSING
 
 
 if __name__ == "__main__":
